@@ -39,10 +39,9 @@ def get_sermon_metadata(file_path):
 
     file_name = file_path.split("/")[-1]
 
-    regex_match = re.match(
-                            r"""(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_(?P<tit
-                            le>[\W\w]+)_(?P<preacher>[\W\w]+)[.][\W\w]+""",
-                            file_name)
+    regex_match = re.match(r"(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_(?P<tit \
+                            le>[\W\w]+)_(?P<preacher>[\W\w]+)[.][\W\w]+",
+                           file_name)
 
     if regex_match:
         date_raw = regex_match.group("date").split("-")
@@ -73,8 +72,7 @@ def upload_video_to_vimeo(config, video_path, metadata):
         data={
             'name': metadata["title"] + " // " + metadata["preacher"] +
             " // Gottesdienst am " + metadata["date"].strftime("%d.%m.%Y"),
-            'description': ''
-        })
+            'description': ''})
     video_uri = video_uri.replace("s", "")
     return video_uri
 
@@ -88,8 +86,7 @@ def upload_audio_to_wordpress(config, audio_path):
 
     wordpress_handle = Client(
         config["wordpress"]["url"] + "/xmlrpc.php",
-        config["wordpress"]["user"], config["wordpress"]["password"]
-    )
+        config["wordpress"]["user"], config["wordpress"]["password"])
 
     audio_name = audio_path.split("/")[-1]
 
@@ -97,8 +94,7 @@ def upload_audio_to_wordpress(config, audio_path):
     # prepare metadata
     data = {
         'name': audio_name,
-        'type': audio_mime_type,
-        }
+        'type': audio_mime_type, }
 
     # read the binary file and let the XMLRPC library encode it into base64
     with open(audio_path, 'rb') as audio_data:
@@ -118,21 +114,19 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
 
     wordpress_handle = Client(
         config["wordpress"]["url"] + "/xmlrpc.php",
-        config["wordpress"]["user"], config["wordpress"]["password"]
-    )
+        config["wordpress"]["user"], config["wordpress"]["password"])
 
     category = wordpress_handle.call(
-        taxonomies.GetTerm('category', config["wordpress"]["category_id"])
-    )
+        taxonomies.GetTerm('category', config["wordpress"]["category_id"]))
 
     if video_url is not None:
-        video_html = "<div>[iframe src=\"https://player.vimeo.com" +\
+        video_html = "<div>[iframe src=\"https://player.vimeo.com" + \
             video_url + "\" width=\"" + config["wordpress"]["video_width"] + \
-            "\" height=\"" + config["wordpress"]["video_height"] + "\" frameborder=\"0\" \
-            allowfullscreen=\"allowfullscreen\"]</div>"
+            "\" height=\"" + config["wordpress"]["video_height"] + "\" \
+            frameborder=\"0\" allowfullscreen=\"allowfullscreen\"]</div>"
     else:
-        video_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt es zu \
-            diesem Gottesdienst leider kein Video</div>"
+        video_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt \
+            es zu diesem Gottesdienst leider kein Video</div>"
 
     if audio_url is not None:
         download_html = "<a style=\"text-decoration:none; background-color:\
@@ -142,20 +136,20 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
         audio_html = "<div><h3>Audiopredigt:</h3><audio controls src=\"" + \
             audio_url + "\"></audio></div>"
     else:
-        audio_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt es zu \
-            diesem Gottesdienst leider keine Tonaufnahme</div>"
+        audio_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt \
+            es zu diesem Gottesdienst leider keine Tonaufnahme</div>"
         download_html = ""
 
     if (video_url is None) and (audio_url is None):
-        video_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt es zu \
-            diesem Gottesdienst leider kein Video und keine Tonaufnahme</div>"
+        video_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt \
+            es zu diesem Gottesdienst leider kein Video und keine Tonaufnahme\
+            </div>"
         download_html = ""
         audio_html = ""
 
     date_time = datetime.datetime(
         metadata["date"].year, metadata["date"].month, metadata["date"].day,
-        config["sermon_start_utc"]
-    )
+        config["sermon_start_utc"])
 
     post = WordPressPost()
     post.title = metadata["title"] + " // " + metadata["preacher"]
@@ -174,26 +168,23 @@ def main():
     config = load_config("./config.json")
 
     audio_list = get_file_list(
-        config["search_path"], config["audio_file_extension"]
-    )
+        config["search_path"], config["audio_file_extension"])
     video_list = get_file_list(
-        config["search_path"], config["video_file_extension"]
-    )
+        config["search_path"], config["video_file_extension"])
     text_list = get_file_list(
-        config["search_path"], config["text_file_extension"]
-    )
+        config["search_path"], config["text_file_extension"])
 
     for video in video_list:
         metadata = get_sermon_metadata(video)
         if metadata is not None:
             audio = convert_video_to_audio(
                 video, config["video_file_extension"],
-                config["audio_file_extension"]
-            )
+                config["audio_file_extension"])
             video_url = upload_video_to_vimeo(config, video, metadata)
             audio_url = upload_audio_to_wordpress(config, audio)
             create_wordpress_post(config, video_url, audio_url, metadata)
-            os.rename(video, config["archive_path"] + "/" + video.split("/")[-1])
+            os.rename(
+                video, config["archive_path"] + "/" + video.split("/")[-1])
             os.remove(audio)
 
     for audio in audio_list:
@@ -201,7 +192,8 @@ def main():
         if metadata is not None:
             audio_url = upload_audio_to_wordpress(config, audio)
             create_wordpress_post(config, None, audio_url, metadata)
-            os.rename(audio, config["archive_path"] + "/" + audio.split("/")[-1])
+            os.rename(
+                audio, config["archive_path"] + "/" + audio.split("/")[-1])
 
     for text in text_list:
         metadata = get_sermon_metadata(text)
