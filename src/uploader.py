@@ -171,10 +171,8 @@ def main():
     """ here happens all the magic """
     import os
 
-    print("Load Config")
     config = load_config("./config.json")
 
-    print("Check for new files")
     audio_list = get_file_list(
         config["search_path"], config["audio_file_extension"]
     )
@@ -186,38 +184,30 @@ def main():
     )
 
     for video in video_list:
-        print("Process Video")
         metadata = get_sermon_metadata(video)
         if metadata is not None:
-            print("Convert Audio")
             audio = convert_video_to_audio(
                 video, config["video_file_extension"],
                 config["audio_file_extension"]
             )
-            print("Upload Video")
             video_url = upload_video_to_vimeo(config, video, metadata)
-            print("Upload Audio")
             audio_url = upload_audio_to_wordpress(config, audio)
-            print("Create Wordpress Post")
             create_wordpress_post(config, video_url, audio_url, metadata)
+            os.rename(video, config["archive_path"] + "/" + video.split("/")[-1])
             os.remove(audio)
 
     for audio in audio_list:
-        print("Process Audio")
         metadata = get_sermon_metadata(audio)
         if metadata is not None:
-            print("Upload Audio")
             audio_url = upload_audio_to_wordpress(config, audio)
-            print("Create Wordpress Post")
             create_wordpress_post(config, None, audio_url, metadata)
-            os.remove(audio)
+            os.rename(audio, config["archive_path"] + "/" + audio.split("/")[-1])
 
     for text in text_list:
-        print("Process Text")
         metadata = get_sermon_metadata(text)
         if metadata is not None:
-            print("Create Wordpress Post")
             create_wordpress_post(config, None, None, metadata)
+            os.remove(text)
 
 if __name__ == "__main__":
     main()

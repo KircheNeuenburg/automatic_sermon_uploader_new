@@ -3,17 +3,18 @@
     "video_file_extension": "mp4",
     "text_file_extension": "txt",
     "search_path": ".",
+    "archive_path": "./Archiv",
     "sermon_start_utc": 9,
     "vimeo": {
-        "token": "8bdcbe017d3d33091bde99c68806797b",
-        "key": "c18db6c1e53e7766b8a862c3483bae0d1147fe42",
-        "secret": "jAZjotwcZv1IysUXKklijAMp9gosLPpUqAEiXfER/b2qwvr/KQX1hHbbcPmFLnHAPHv53Blrd72LX9agLvj/2GLbAGb+q7XdivyI7MPGKJByGzjK8zhLSL+9+05sECbZS"
+        "token": "acces_token",
+        "key": "client_identifier",
+        "secret": "client_secret"
     },
     "wordpress": {
-        "url": "https://kircheneuenburg.de",
-        "user": "technik@kircheneuenburg.de",
-        "password": "x_qrr6a-bz3l-eAM7SxCQELGg3drNK3Vmdx2lEau97h1dryWAwkcMiCMsjSKd7hg",
-        "category_id": 5,
+        "url": "wordpress_url",
+        "user": "username",
+        "password": "password",
+        "category_id": 1,
         "video_width": "540",
         "video_height": "304"
     }
