@@ -196,8 +196,9 @@ def main():
     """ here happens all the magic """
 
     import os
+    import shutil
 
-    config = load_config("./config.json")
+    config = load_config("../config.json")
 
     audio_list = get_file_list(config["search_path"], config["audio_file_extension"])
     video_list = get_file_list(config["search_path"], config["video_file_extension"])
@@ -212,7 +213,7 @@ def main():
             video_url = upload_video_to_vimeo(config, video, metadata)
             audio_url = upload_audio_to_wordpress(config, audio)
             create_wordpress_post(config, video_url, audio_url, metadata)
-            os.rename(video, config["archive_path"] + "/" + video.split("/")[-1])
+            shutil.move(video, config["archive_path"] + "/" + video.split("/")[-1])
             os.remove(audio)
 
     for audio in audio_list:
@@ -220,7 +221,7 @@ def main():
         if metadata is not None:
             audio_url = upload_audio_to_wordpress(config, audio)
             create_wordpress_post(config, None, audio_url, metadata)
-            os.rename(audio, config["archive_path"] + "/" + audio.split("/")[-1])
+            shutil.move(audio, config["archive_path"] + "/" + audio.split("/")[-1])
 
     for text in text_list:
         metadata = get_sermon_metadata(text)
