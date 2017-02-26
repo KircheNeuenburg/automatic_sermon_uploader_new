@@ -157,7 +157,7 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
     post.date = date_time
     post.terms.append(category)
     # whoops, I forgot to publish it!
-    # post.post_status = 'publish'
+    post.post_status = 'publish'
     post.id = wordpress_handle.call(posts.NewPost(post))
 
 
