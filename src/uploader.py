@@ -26,7 +26,7 @@ def convert_video_to_audio(file_path, video_extension, audio_extension):
     audio_path = file_path.replace("." + video_extension,
                                    "." + audio_extension)
     clip = mp.VideoFileClip(file_path).subclip(0)
-    clip.audio.write_audiofile(audio_path)
+    clip.audio.write_audiofile(audio_path, 44100, 2, 2000, None, "128k", None, False, False)
     return audio_path
 
 
@@ -103,6 +103,19 @@ def upload_audio_to_wordpress(config, audio_path):
     response = wordpress_handle.call(media.UploadFile(data))
 
     return response['url']
+
+def copy_audio_to_wordpress(config, audio_path):
+    """moves the audio to wordpress using the wp path stored in config"""
+
+    import shutil
+
+    audio_name = audio_path.split("/")[-1]
+    audio_url = config["wordpress"]["url"] + "/" + \
+        config["wordpress"]["wp_audio_path"] +  "/" + audio_name
+
+    shutil.copy(audio_path, config["wordpress"]["local_audio_path"])
+
+    return audio_url
 
 
 def create_wordpress_post(config, video_url, audio_url, metadata):
@@ -182,7 +195,7 @@ def main():
                 video, config["video_file_extension"],
                 config["audio_file_extension"])
             video_url = upload_video_to_vimeo(config, video, metadata)
-            audio_url = upload_audio_to_wordpress(config, audio)
+            audio_url = copy_audio_to_wordpress(config, audio)
             create_wordpress_post(config, video_url, audio_url, metadata)
             shutil.move(
                 video, config["archive_path"] + "/" + video.split("/")[-1])
@@ -191,7 +204,7 @@ def main():
     for audio in audio_list:
         metadata = get_sermon_metadata(audio)
         if metadata is not None:
-            audio_url = upload_audio_to_wordpress(config, audio)
+            audio_url = copy_audio_to_wordpress(config, audio)
             create_wordpress_post(config, None, audio_url, metadata)
             shutil.move(
                 audio, config["archive_path"] + "/" + audio.split("/")[-1])
