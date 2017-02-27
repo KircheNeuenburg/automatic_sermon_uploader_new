@@ -39,8 +39,7 @@ def get_sermon_metadata(file_path):
 
     file_name = file_path.split("/")[-1]
 
-    regex_match = re.match(r"(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_(?P<tit \
-                            le>[\W\w]+)_(?P<preacher>[\W\w]+)[.][\W\w]+",
+    regex_match = re.match(r"(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_(?P<title>[\W\w]+)_(?P<preacher>[\W\w]+)[.][\W\w]+",
                            file_name)
 
     if regex_match:
