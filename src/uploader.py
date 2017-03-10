@@ -40,9 +40,9 @@ def get_sermon_metadata(file_path):
 
     file_name = file_path.split("/")[-1]
 
-    regex_match = re.match("(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_\
-                           (?P<title>[\\W\\w]+)_(?P<preacher>[\\W\\w]+)\
-                           [.][\\W\\w]+",
+    regex_match = re.match("(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_" +
+                           "(?P<title>[\\W\\w]+)_(?P<preacher>[\\W\\w]+)" +
+                           "[.][\\W\\w]+",
                            file_name)
 
     if regex_match:
@@ -136,7 +136,7 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
             "\" height=\"" + config["wordpress"]["video_height"] + "\" \
             frameborder=\"0\" allowfullscreen=\"allowfullscreen\"]</div>"
     else:
-        video_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt \
+        video_html = "<div> Es tut uns Leid, aus technischen Gr&uuml;nden gibt \
             es zu diesem Gottesdienst leider kein Video</div>"
 
     if audio_url is not None:
@@ -147,12 +147,12 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
         audio_html = "<div><h3>Audiopredigt:</h3><audio controls src=\"" + \
             audio_url + "\"></audio></div>"
     else:
-        audio_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt \
+        audio_html = "<div> Es tut uns Leid, aus technischen Gr&uuml;nden gibt \
             es zu diesem Gottesdienst leider keine Tonaufnahme</div>"
         download_html = ""
 
     if (video_url is None) and (audio_url is None):
-        video_html = "<div> Es tut uns Leid, aus Technischen Gr&uuml;nden gibt \
+        video_html = "<div> Es tut uns Leid, aus technischen Gr&uuml;nden gibt \
             es zu diesem Gottesdienst leider kein Video und keine Tonaufnahme\
             </div>"
         download_html = ""
