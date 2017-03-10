@@ -16,7 +16,7 @@
         "password": "password",
         "wp_audio_path": "wp-content/audio_sermons",
         "local_audio_path": "/var/www/httpdocs/wp-content",
-        "category_id": 1,
+        "category": "sermon",
         "video_width": "540",
         "video_height": "304"
     }

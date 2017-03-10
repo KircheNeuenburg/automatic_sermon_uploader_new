@@ -26,7 +26,8 @@ def convert_video_to_audio(file_path, video_extension, audio_extension):
     audio_path = file_path.replace("." + video_extension,
                                    "." + audio_extension)
     clip = mp.VideoFileClip(file_path).subclip(0)
-    clip.audio.write_audiofile(audio_path, 44100, 2, 2000, None, "128k", None, False, False)
+    clip.audio.write_audiofile(audio_path, 44100, 2, 2000,
+                               None, "128k", None, False, False)
     return audio_path
 
 
@@ -39,7 +40,9 @@ def get_sermon_metadata(file_path):
 
     file_name = file_path.split("/")[-1]
 
-    regex_match = re.match(r"(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_(?P<title>[\W\w]+)_(?P<preacher>[\W\w]+)[.][\W\w]+",
+    regex_match = re.match("(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_\
+                           (?P<title>[\\W\\w]+)_(?P<preacher>[\\W\\w]+)\
+                           [.][\\W\\w]+",
                            file_name)
 
     if regex_match:
@@ -66,12 +69,11 @@ def upload_video_to_vimeo(config, video_path, metadata):
 
     video_uri = vimeo_handle.upload(video_path)
 
-    vimeo_handle.patch(
-        video_uri,
-        data={
-            'name': metadata["title"] + " // " + metadata["preacher"] +
-            " // Gottesdienst am " + metadata["date"].strftime("%d.%m.%Y"),
-            'description': ''})
+    vimeo_handle.patch(video_uri, data={'name': metadata["title"] + " // " +
+                                        metadata["preacher"] +
+                                        " // Gottesdienst am " +
+                                        metadata["date"].strftime("%d.%m.%Y"),
+                                        'description': ''})
     video_uri = video_uri.replace("s", "")
     return video_uri
 
@@ -103,6 +105,7 @@ def upload_audio_to_wordpress(config, audio_path):
 
     return response['url']
 
+
 def copy_audio_to_wordpress(config, audio_path):
     """moves the audio to wordpress using the wp path stored in config"""
 
@@ -110,7 +113,7 @@ def copy_audio_to_wordpress(config, audio_path):
 
     audio_name = audio_path.split("/")[-1]
     audio_url = config["wordpress"]["url"] + "/" + \
-        config["wordpress"]["wp_audio_path"] +  "/" + audio_name
+        config["wordpress"]["wp_audio_path"] + "/" + audio_name
 
     shutil.copy(audio_path, config["wordpress"]["local_audio_path"])
 
@@ -122,14 +125,10 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
     import datetime
     from wordpress_xmlrpc import Client, WordPressPost
     from wordpress_xmlrpc.methods import posts
-    from wordpress_xmlrpc.methods import taxonomies
 
     wordpress_handle = Client(
         config["wordpress"]["url"] + "/xmlrpc.php",
         config["wordpress"]["user"], config["wordpress"]["password"])
-
-    category = wordpress_handle.call(
-        taxonomies.GetTerm('category', config["wordpress"]["category_id"]))
 
     if video_url is not None:
         video_html = "<div>[iframe src=\"https://player.vimeo.com" + \
@@ -143,7 +142,7 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
     if audio_url is not None:
         download_html = "<a style=\"text-decoration:none; background-color:\
             #0076b3; border-radius:3px; padding:5px; color:#ffffff; \
-            border-color:black; border:1px;\"\ href=\"" + audio_url + "\" \
+            border-color:black; border:1px;\" href=\"" + audio_url + "\" \
             title=\"Download als MP3\" target=\"_blank\">Download als MP3</a>"
         audio_html = "<div><h3>Audiopredigt:</h3><audio controls src=\"" + \
             audio_url + "\"></audio></div>"
@@ -167,8 +166,10 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
     post.title = metadata["title"] + " // " + metadata["preacher"]
     post.content = video_html + audio_html + download_html
     post.date = date_time
-    post.terms.append(category)
-    # whoops, I forgot to publish it!
+    post.terms_names = {
+        'post_tag': [metadata["title"], metadata["preacher"]],
+        'category': [config["wordpress"]["category"]],
+        }
     post.post_status = 'publish'
     post.id = wordpress_handle.call(posts.NewPost(post))
 
