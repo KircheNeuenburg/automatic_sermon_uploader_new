@@ -6,7 +6,7 @@
     "archive_path": "./Archiv",
     "sermon_start_utc": 9,
     "vimeo": {
-        "token": "acces_token",
+        "token": "access_token",
         "key": "client_identifier",
         "secret": "client_secret"
     },
@@ -18,6 +18,19 @@
         "local_audio_path": "/var/www/httpdocs/wp-content",
         "category": "sermon",
         "video_width": "540",
-        "video_height": "304"
+        "video_height": "304",
+        "download_button_color": "#0076b3",
+        "download_button_text": "Download as MP3"
+    },
+    "mail": {
+        "smtp_server": "smtp.example.com",
+        "smtp_port": 465,
+        "login": "username",
+        "password": "password",
+        "sender": "me@example.com",
+        "receivers": 
+            ["you@example.com", 
+            "them@example.com"],
+        "signature": "Kind Regards,<br> the Sender"
     }
 }

@@ -11,12 +11,24 @@ def load_config(file_path):
     return data
 
 
+def test_get_file_list(tmpdir):
+
+    empty_list = list("")
+    assert get_file_list("./", "mp3") == empty_list
+
+
 def get_file_list(path, file_extension):
     """ searches all files in path for files matching the file extension """
     import glob
 
     file_list = glob.glob(path + "/*." + file_extension)
     return file_list
+
+
+def create_baptism_video_password(metadata):
+    """ creates a password for video access"""
+
+    return "taufe" + metadata["date"].strftime("%d%m%Y")
 
 
 def convert_video_to_audio(file_path, video_extension, audio_extension):
@@ -58,7 +70,31 @@ def get_sermon_metadata(file_path):
     return metadata
 
 
-def upload_video_to_vimeo(config, video_path, metadata):
+def get_baptism_metadata(file_path):
+    """ extracts date out of filename """
+    import re
+    import datetime
+
+    metadata = {"date": None}
+
+    file_name = file_path.split("/")[-1]
+
+    regex_match = re.match("(?P<date>[0-9]{4}-[0,1][0-9]-[0-3][0-9])_" +
+                           "Taufe[.][\\W\\w]+",
+                           file_name)
+
+    if regex_match:
+        date_raw = regex_match.group("date").split("-")
+
+        metadata["date"] = datetime.date(int(date_raw[0]), int(date_raw[1]),
+                                         int(date_raw[2]))
+    else:
+        metadata = None
+
+    return metadata
+
+
+def upload_sermon_to_vimeo(config, video_path, metadata):
     """ uploads the video to vimeo using the credentials stored in config """
     import vimeo
 
@@ -75,6 +111,30 @@ def upload_video_to_vimeo(config, video_path, metadata):
                                         metadata["date"].strftime("%d.%m.%Y"),
                                         'description': ''})
     video_uri = video_uri.replace("s", "")
+    return video_uri
+
+
+def upload_baptism_to_vimeo(config, video_path, metadata):
+    """ uploads the video to vimeo using the credentials stored in config """
+    import vimeo
+
+    vimeo_handle = vimeo.VimeoClient(
+        token=config["vimeo"]["token"],
+        key=config["vimeo"]["key"],
+        secret=config["vimeo"]["secret"])
+
+    video_uri = vimeo_handle.upload(video_path)
+
+    vimeo_handle.patch(video_uri, data={'name': "Zur Erinnerung " +
+                                        "an die Taufe am " +
+                                        metadata["date"].strftime("%d.%m.%Y"),
+                                        'description': '',
+                                        'privacy': {'view': 'password'},
+                                        'password':
+                                        create_baptism_video_password(metadata)
+                                        })
+    video_uri = video_uri.replace("s", "")
+
     return video_uri
 
 
@@ -140,10 +200,13 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
             es zu diesem Gottesdienst leider kein Video</div>"
 
     if audio_url is not None:
-        download_html = "<a style=\"text-decoration:none; background-color:\
-            #0076b3; border-radius:3px; padding:5px; color:#ffffff; \
-            border-color:black; border:1px;\" href=\"" + audio_url + "\" \
-            title=\"Download als MP3\" target=\"_blank\">Download als MP3</a>"
+        download_html = "<a style=\"text-decoration:none; background-color:" +\
+            config["Wordpress"]["download_button_color"] +\
+            "; border-radius:3px; padding:5px; color:#ffffff; \
+            border-color:black; border:1px;\" href=\"" + audio_url +\
+            "\" title=\"" + config["Wordpress"]["download_button_text"] + \
+            "\" target=\"_blank\">" +\
+            config["Wordpress"]["download_button_text"] + "</a>"
         audio_html = "<div><h3>Audiopredigt:</h3><audio controls src=\"" + \
             audio_url + "\"></audio></div>"
     else:
@@ -174,12 +237,55 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
     post.id = wordpress_handle.call(posts.NewPost(post))
 
 
+def send_baptism_online_notification(config, video_url, metadata):
+    """ send mail notification when baptism video was uploaded"""
+
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    msg = MIMEMultipart()
+    msg['From'] = config["mail"]["sender"]
+    msg['To'] = ", ".join(config["mail"]["receivers"])
+    msg['Subject'] = "Video der Taufe am " +\
+                     metadata["date"].strftime("%d.%m.%Y")
+
+    video_link = "https://vimeo.com/" + video_url.split("/")[-1]
+    content = "Hallo,<br><br>das Video der Taufe am " +\
+              metadata["date"].strftime("%d.%m.%Y") +\
+              " gibt es unter folgenden Link:<br><a href=\"" + video_link +\
+              "\">" + video_link + "</a><br>Passwort: " + \
+              create_baptism_video_password(metadata) +\
+              "<br><br>Bitte leitet das an die Tauffamilie(n) weiter. " +\
+              "Vielen Dank!<br><br>" + config["mail"]["signature"]
+    msg.attach(MIMEText(content, "html"))
+
+    print(msg)
+
+    mailserver = smtplib.SMTP(config["mail"]["smtp_server"],
+                              config["mail"]["smtp_port"])
+    # identify ourselves to smtp gmail client
+    mailserver.ehlo()
+    # secure our email with tls encryption
+    mailserver.starttls()
+    # re-identify ourselves as an encrypted connection
+    mailserver.ehlo()
+    mailserver.login(config["mail"]["login"], config["mail"]["password"])
+
+    config["mail"]["receivers"]
+    mailserver.sendmail(config["mail"]["sender"],
+                        config["mail"]["receivers"],
+                        msg.as_string())
+
+    mailserver.quit()
+
+
 def main():
     """ here happens all the magic """
     import os
     import shutil
 
-    config = load_config("../config.json")
+    config = load_config("./config.1.json")
 
     audio_list = get_file_list(
         config["search_path"], config["audio_file_extension"])
@@ -194,12 +300,20 @@ def main():
             audio = convert_video_to_audio(
                 video, config["video_file_extension"],
                 config["audio_file_extension"])
-            video_url = upload_video_to_vimeo(config, video, metadata)
+            video_url = upload_sermon_to_vimeo(config, video, metadata)
             audio_url = copy_audio_to_wordpress(config, audio)
             create_wordpress_post(config, video_url, audio_url, metadata)
             shutil.move(
                 video, config["archive_path"] + "/" + video.split("/")[-1])
             os.remove(audio)
+        else:
+            metadata = get_baptism_metadata(video)
+            if metadata is not None:
+                video_url = upload_baptism_to_vimeo(config, video, metadata)
+                send_baptism_online_notification(config, video_url, metadata)
+                shutil.move(
+                    video, config["archive_path"] + "/Taufe/" +
+                    video.split("/")[-1])
 
     for audio in audio_list:
         metadata = get_sermon_metadata(audio)

@@ -1,0 +1,34 @@
+{
+    "audio_file_extension": "mp3",
+    "video_file_extension": "mp4",
+    "text_file_extension": "txt",
+    "search_path": ".",
+    "archive_path": "./Archiv",
+    "sermon_start_utc": 9,
+    "vimeo": {
+        "token": "875e2d7588791827d75d73afeec34031",
+        "key": "c18db6c1e53e7766b8a862c3483bae0d1147fe42",
+        "secret": "jAZjotwcZv1IysUXKklijAMp9gosLPpUqAEiXfER/b2qwvr/KQX1hHbbcPmFLnHAPHv53Blrd72LX9agLvj/2GLbAGb+q7XdivyI7MPGKJByGzjK8zhLSL+9+05sECbZS"
+    },
+    "wordpress": {
+        "url": "wordpress_url",
+        "user": "username",
+        "password": "password",
+        "wp_audio_path": "wp-content/audio_sermons",
+        "local_audio_path": "/var/www/httpdocs/wp-content",
+        "category": "sermon",
+        "video_width": "540",
+        "video_height": "304",
+        "download_button_color": "#0076b3",
+        "download_button_text": "Download as MP3"
+    },
+    "mail": {
+        "smtp_server": "mail.ud13.udmedia.de",
+        "smtp_port": 587,
+        "login": "ud13_10p8",
+        "password": "?cnNaeR8EsAM",
+        "sender": "technik@kircheneuenburg.de",
+        "receivers": ["lang.david@outlook.com", "dlang9159@outlook.com"],
+        "signature": "Mit freundlichen Grüßen,<br>die Technik der Kirche Neuenburg<br><br>--<br>Technik KircheNeuenburg<br>Friedhofstraße 18<br>79395 Neuenburg am Rhein<br>Email: <a href=\"mailto:Technik@KircheNeuenburg.de\">Technik@KircheNeuenburg.de</a> - Web: <a href=\"https://kircheneuenburg.de\">KircheNeuenburg.de </a><br>--<br>"
+    }
+}
