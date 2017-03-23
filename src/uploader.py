@@ -260,8 +260,6 @@ def send_baptism_online_notification(config, video_url, metadata):
               "Vielen Dank!<br><br>" + config["mail"]["signature"]
     msg.attach(MIMEText(content, "html"))
 
-    print(msg)
-
     mailserver = smtplib.SMTP(config["mail"]["smtp_server"],
                               config["mail"]["smtp_port"])
     # identify ourselves to smtp gmail client
@@ -285,7 +283,7 @@ def main():
     import os
     import shutil
 
-    config = load_config("./config.1.json")
+    config = load_config("./config.json")
 
     audio_list = get_file_list(
         config["search_path"], config["audio_file_extension"])
