@@ -201,12 +201,12 @@ def create_wordpress_post(config, video_url, audio_url, metadata):
 
     if audio_url is not None:
         download_html = "<a style=\"text-decoration:none; background-color:" +\
-            config["Wordpress"]["download_button_color"] +\
+            config["wordpress"]["download_button_color"] +\
             "; border-radius:3px; padding:5px; color:#ffffff; \
             border-color:black; border:1px;\" href=\"" + audio_url +\
             "\" title=\"" + config["Wordpress"]["download_button_text"] + \
             "\" target=\"_blank\">" +\
-            config["Wordpress"]["download_button_text"] + "</a>"
+            config["wordpress"]["download_button_text"] + "</a>"
         audio_html = "<div><h3>Audiopredigt:</h3><audio controls src=\"" + \
             audio_url + "\"></audio></div>"
     else:
