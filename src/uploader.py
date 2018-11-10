@@ -21,7 +21,15 @@ def get_file_list(path, file_extension):
     """ searches all files in path for files matching the file extension """
     import glob
 
+    try:
+        if path.endswith('/'):
+            path = path[:-1]
+
     file_list = glob.glob(path + "/*." + file_extension)
+
+    except:
+        file_list = []
+
     return file_list
 
 
@@ -35,11 +43,15 @@ def convert_video_to_audio(file_path, video_extension, audio_extension):
     """ converts the video file to an audio file """
     import moviepy.editor as mp
 
+    try:
     audio_path = file_path.replace("." + video_extension,
                                    "." + audio_extension)
     clip = mp.VideoFileClip(file_path).subclip(0)
     clip.audio.write_audiofile(audio_path, 44100, 2, 2000,
-                               None, "128k", None, False, False)
+                                   None, "128k", None, False, False, False)
+    except:
+        audio_path = ''
+
     return audio_path
 
 
@@ -92,6 +104,25 @@ def get_baptism_metadata(file_path):
         metadata = None
 
     return metadata
+
+
+def upload_sermon_to_peertube(config, video_path, metadata):
+    """ uploads the video to vimeo using the credentials stored in config """
+    import pt_upload
+    options = dict()
+    secret = dict()
+    options['file'] = video_path
+    options['name'] = metadata["title"] + " // " +  metadata["preacher"] +  " // Gottesdienst am " +   metadata["date"].strftime("%d.%m.%Y")
+    options['language'] = "german"
+    secret['peertube_url'] = config['peertube']['peertube_url']
+    secret['client_id'] = config['peertube']['client_id']
+    secret['username'] = config['peertube']['username']
+    secret['password'] = config['peertube']['password']
+    secret['client_secret'] = config['peertube']['client_secret']
+    oauth = pt_upload.get_authenticated_service(secret)
+    video_uri = pt_upload.upload_video(oauth, secret, options)
+    print(video_uri)
+    return video_uri
 
 
 def upload_sermon_to_vimeo(config, video_path, metadata):
@@ -298,7 +329,7 @@ def main():
             audio = convert_video_to_audio(
                 video, config["video_file_extension"],
                 config["audio_file_extension"])
-            video_url = upload_sermon_to_vimeo(config, video, metadata)
+            video_url = upload_sermon_to_peertube(config, video, metadata)
             audio_url = copy_audio_to_wordpress(config, audio)
             create_wordpress_post(config, video_url, audio_url, metadata)
             shutil.move(

@@ -10,6 +10,13 @@
         "key": "client_identifier",
         "secret": "client_secret"
     },
+    "peertube": {
+        "client_id": "your_client_id",
+        "client_secret": "your_client_secret",
+        "username": "your_username",
+        "password": "Your_password",
+        "peertube_url": "https://peertube.example.com"
+    },
     "wordpress": {
         "url": "wordpress_url",
         "user": "username",
