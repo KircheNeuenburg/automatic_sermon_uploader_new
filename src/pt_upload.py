@@ -121,7 +121,7 @@ def upload_video(oauth, secret, options):
     fields = [
         ("name", options['name'] or splitext(basename(options['file']))[0]),
         ("licence", "1"),
-        ("description", " "),
+        ("description", "KircheNeuenburg.de"),
         ("nsfw", "0"),
         ("videofile", get_file(path))
     ]
