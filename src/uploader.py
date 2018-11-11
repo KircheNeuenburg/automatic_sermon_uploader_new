@@ -25,7 +25,7 @@ def get_file_list(path, file_extension):
         if path.endswith('/'):
             path = path[:-1]
 
-    file_list = glob.glob(path + "/*." + file_extension)
+        file_list = glob.glob(path + "/*." + file_extension)
 
     except:
         file_list = []
@@ -44,11 +44,11 @@ def convert_video_to_audio(file_path, video_extension, audio_extension):
     import moviepy.editor as mp
 
     try:
-    audio_path = file_path.replace("." + video_extension,
-                                   "." + audio_extension)
-    clip = mp.VideoFileClip(file_path).subclip(0)
-    clip.audio.write_audiofile(audio_path, 44100, 2, 2000,
-                                   None, "128k", None, False, False, False)
+        audio_path = file_path.replace("." + video_extension,
+                                    "." + audio_extension)
+        clip = mp.VideoFileClip(file_path).subclip(0)
+        clip.audio.write_audiofile(audio_path, 44100, 2, 2000,
+                                    None, "128k", None, False, False, False)
     except:
         audio_path = ''
 
