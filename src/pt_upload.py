@@ -101,7 +101,9 @@ def create_playlist(oauth, url, options):
 def upload_video(oauth, secret, options):
 
     def get_userinfo():
-        return json.loads(oauth.get(url+"/api/v1/users/me").content)
+        str_response = oauth.get(url+"/api/v1/users/me").content.decode('utf-8')
+        return json.loads(str_response)
+        #return json.loads(oauth.get(url+"/api/v1/users/me").content)
 
     def get_file(path):
         mimetypes.init()
